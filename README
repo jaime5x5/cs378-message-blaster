@@ -1,0 +1,15 @@
+Project Specifications
+
+You  will write a SMS/Email Message Blaster which will have two tables.
+This will allow multiple companies to keep track of their customers.  They can either email them or send a text (SMS) message, depending on which data was entered into the customer account.  Your program must:
+
+Do all data entry (Add/Edit/Delete) on company/customers.
+Send a message blast which will:
+Email if boolean set to true
+Text (SMS) if boolean set to true.
+Log all sent messages to the messages table
+You may wish to use the php mail library for the email.  There are several web services which allow sms services.
+
+Project using:
+http://www.freesmsgateway.com/account
+http://www.freesmsgateway.com/api
