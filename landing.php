@@ -74,7 +74,7 @@
 		<fieldset>
 			<legend>Customers</legend>
 			<a href="<?php echo "addCustomer.php" ?>">Add New Customer</a>&nbsp;&nbsp;
-			<h6>view list by:</h6>
+			<h6>View customer list by:</h6>
 			<a href="<?php echo "landing.php?filter=e" ?>">Customers email</a>&nbsp;&nbsp;
 			<a href="<?php echo "landing.php?filter=t" ?>">Customers text</a>&nbsp;&nbsp;
 			<a href="<?php echo "landing.php?filter=a" ?>">View Both</a>&nbsp;&nbsp;
@@ -111,7 +111,7 @@
 		    
 		     <div>
 		        <label for="customer_phone">Phone:</label>
-		        <input type="text" name="customer_phone" id="customer_phone" placeholder="1-509-867-5309"  value="<?php echo $a['customer_phone']; ?>" readonly/>      
+		        <input type="text" name="customer_phone" id="customer_phone" placeholder="5098675309"  value="<?php echo $a['customer_phone']; ?>" readonly/>      
 		        <label for="use_phone">Use Phone:</label>
 		        <input type="checkbox" name="use_phone" id="use_phone"  <?php echo $phone_checked; ?>  />
 		     </div>

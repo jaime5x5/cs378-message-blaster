@@ -1,6 +1,7 @@
 <?php
 
 require_once 'locked/security.php';
+include('GoogleVoice.php');
 
 //reworked from comments in http://www.php.net/manual/en/mysqli-stmt.fetch.php
 //I'm using this to replace the get_results method.
@@ -38,6 +39,15 @@ function getFilterQuery($filter)
 	
 	if($filter == "t")
 		return " AND use_phone = 1 ";
+
+	if($filter == "message_time")
+		return " message_time ";
+	
+	if($filter == "company_id")
+		return " company_id ";
+
+	if($filter == "message_content")
+		return " message_content ";
 	
 	return "";
 }
@@ -115,7 +125,7 @@ function getCustomer($customer_id, $db)
 	if (!$query)
     	die('Error, Could not query database.');
 	
-	$query->bind_param("i", $mid);
+	$query->bind_param("i", $customer_id);
 	
 	$query->execute();
 	
@@ -139,31 +149,64 @@ function deleteCustomer($db, $customer_id)
 	$query->close();
 }
 
-// function setWatched($db, $mid, $date)
-// {
-// 	$query = $db->prepare("UPDATE movies SET watched = 1, watched_date = ? WHERE mid = ?");
+function getMessages($company_id, $pageNum, $pageSize, $filter, $db)
+{
+	$query = $db->prepare("SELECT * FROM messages WHERE company_id = ? ORDER BY ".getFilterQuery($filter)."  LIMIT ?, ?");
 	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
+	if (!$query)
+    	die('Error, Could not query database.');
 	
-// 	$query->bind_param("si", $date, $mid);
+	$start = ($pageNum-1)*$pageSize;
+	$end = $pageNum*$pageSize;
 	
-// 	$query->execute();
-// 	$query->close();
-// }
+	$query->bind_param("iii", $company_id, $start, $end);
+	
+	$query->execute();
+	
+	return stmt_get_assoc($query);
+}
 
-// function setUnwatched($db, $mid)
-// {
-// 	$query = $db->prepare("UPDATE movies SET watched = 0, watched_date = NULL WHERE mid = ?");
+function getAllMessages($company_id, $pageNum, $pageSize, $filter, $db)
+{
+	$query = $db->prepare("SELECT * FROM messages ORDER BY".getFilterQuery($filter)." LIMIT ?, ?");
 	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
+	if (!$query)
+    	die('Error, Could not query database.');
 	
-// 	$query->bind_param("i", $mid);
+	$start = ($pageNum-1)*$pageSize;
+	$end = $pageNum*$pageSize;
 	
-// 	$query->execute();
-// 	$query->close();
-// }
+	$query->bind_param("ii", $start, $end);
+	
+	$query->execute();
+	
+	return stmt_get_assoc($query);
+}
+
+function sendtext($company_id, $customer_phone, $message_content){
+			if($message_content && $customer_phone) {
+				$gv = new GoogleVoice(__gv__email, __gv__pwd);
+				$gv->sendSMS($customer_phone, $message_content);
+				// log event
+				$db = getDatabase();		
+				$query = $db->prepare("INSERT INTO messages SET message_content=?, message_time=?, company_id=?");
+
+				if (!$query)
+	    			die('Error, Could not update database.');
+	    		$timestamp = NULL;
+			
+				$query->bind_param("sss", $message_content, $timestamp, $company_id);				
+				$query->execute();				
+				$db->close();
+		}
+}
+
+function test_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
 
 // function getSub($mid, $sub,  $db)
 // {

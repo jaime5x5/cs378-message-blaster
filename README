@@ -11,5 +11,4 @@ Log all sent messages to the messages table
 You may wish to use the php mail library for the email.  There are several web services which allow sms services.
 
 Project using:
-http://www.freesmsgateway.com/account
-http://www.freesmsgateway.com/api
+https://github.com/aaronpk/Google-Voice-PHP-API

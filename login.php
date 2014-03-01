@@ -6,8 +6,8 @@ session_start();
 
 if (isset($_POST['submit'])){
 	
-	$company_name = $_POST['company_name'];
-	$pwd = $_POST['pwd'];
+	$company_name = strtolower(test_input($_POST['company_name']));
+	$pwd = strtolower(test_input($_POST['pwd']));
 	
 	$mysqli = getDatabase();
 	
