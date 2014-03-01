@@ -25,9 +25,11 @@ session_destroy();
 		<title>
 			Logged out
 		</title>
+
+		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body>
-		<h2>Logged out!</h2><br />
+		<h2>Logged out!</h2><small>and then?</small><br />
 		<a href="login.php">Log back in?</a>
 	</body>
 </html>

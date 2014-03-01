@@ -34,10 +34,10 @@ function stmt_get_assoc (&$stmt) {
 function getFilterQuery($filter)
 {
 	if($filter == "e")
-		return " AND email = 1 ";
+		return " AND use_email = 1 ";
 	
 	if($filter == "t")
-		return " AND text = 1 ";
+		return " AND use_phone = 1 ";
 	
 	return "";
 }
@@ -82,60 +82,62 @@ function getCustomers($company_id, $pageNum, $pageSize, $filter, $db)
 	$query->bind_param("iii", $company_id, $start, $end);
 	
 	$query->execute();
+
+	// var_dump( stmt_get_assoc($query));
 	
 	return stmt_get_assoc($query);
 }
 
-// function verifyOwnership($company_id, $mid, $db)
-// {
-// 	$query = $db->prepare("SELECT COUNT(mid) AS count FROM movies WHERE mid = ? AND uid = ?");
+function verifyOwnership($company_id, $customer_id, $db)
+{
+	$query = $db->prepare("SELECT COUNT(company_id) AS count FROM customers WHERE  company_id= ? AND  customer_id= ?");
 	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
+	if (!$query)
+    	die('Error, Could not query database.');
 
-// 	$query->bind_param("ii", $mid, $uid);
+	$query->bind_param("ii", $mid, $uid);
 	
-// 	$query->execute();
+	$query->execute();
 	
-// 	$r = stmt_get_assoc($query);
+	$r = stmt_get_assoc($query);
 	
-// 	$res = ($r[0]['count'] == 1)?TRUE:FALSE;
+	$res = ($r[0]['count'] == 1)?TRUE:FALSE;
 	
-// 	$query->close();
+	$query->close();
 	
-// 	return $res;	
-// }
+	return $res;	
+}
 
-// function getMovie($mid, $db)
-// {
-// 	$query = $db->prepare("SELECT * FROM movies WHERE mid = ?");
+function getCustomer($customer_id, $db)
+{
+	$query = $db->prepare("SELECT * FROM customers WHERE customer_id = ?");
 	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
+	if (!$query)
+    	die('Error, Could not query database.');
 	
-// 	$query->bind_param("i", $mid);
+	$query->bind_param("i", $mid);
 	
-// 	$query->execute();
+	$query->execute();
 	
-// 	$r = stmt_get_assoc($query);
+	$r = stmt_get_assoc($query);
 	
-// 	$query->close();
+	$query->close();
 	
-// 	return $r[0];
-// }	
+	return $r[0];
+}	
 
-// function deleteMovie($db, $mid)
-// {
-// 	$query = $db->prepare("DELETE FROM movies WHERE mid = ?");
+function deleteCustomer($db, $customer_id)
+{
+	$query = $db->prepare("DELETE FROM customers WHERE customer_id = ?");
 	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
+	if (!$query)
+    	die('Error, Could not query database.');
 	
-// 	$query->bind_param("i", $mid);
+	$query->bind_param("i", $mid);
 	
-// 	$query->execute();
-// 	$query->close();
-// }
+	$query->execute();
+	$query->close();
+}
 
 // function setWatched($db, $mid, $date)
 // {
