@@ -6,7 +6,7 @@ include('GoogleVoice.php');
 //reworked from comments in http://www.php.net/manual/en/mysqli-stmt.fetch.php
 //I'm using this to replace the get_results method.
 
-function stmt_get_assoc (&$stmt) {
+function stmt_get_assoc(&$stmt) {
 
 	$stmt->store_result();
 	$meta = $stmt->result_metadata();
@@ -183,19 +183,19 @@ function getAllMessages($company_id, $pageNum, $pageSize, $filter, $db)
 	return stmt_get_assoc($query);
 }
 
-function sendtext($company_id, $customer_phone, $message_content){
-			if($message_content && $customer_phone) {
+function sendtext($company_id, $customer_phone, $message_content, $sms_count){
+			if($message_content && $customer_phone && $sms_count) {
 				$gv = new GoogleVoice(__gv__email, __gv__pwd);
 				$gv->sendSMS($customer_phone, $message_content);
 				// log event
 				$db = getDatabase();		
-				$query = $db->prepare("INSERT INTO messages SET message_content=?, message_time=?, company_id=?");
+				$query = $db->prepare("INSERT INTO messages SET message_content=?, message_time=?, company_id=?, sms_count=? ");
 
 				if (!$query)
 	    			die('Error, Could not update database.');
 	    		$timestamp = NULL;
 			
-				$query->bind_param("sss", $message_content, $timestamp, $company_id);				
+				$query->bind_param("sssi", $message_content, $timestamp, $company_id, $sms_count);				
 				$query->execute();				
 				$db->close();
 		}

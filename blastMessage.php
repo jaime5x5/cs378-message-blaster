@@ -3,6 +3,8 @@
 
 	$company_name = $_SESSION['company_name'];
 	$company_id = $_SESSION['company_id'];
+	$sms_count = 0;
+	$_SESSION['sms_count'] = $sms_count;
 
 	if(!isset($_SESSION['company_id'])) {
 		header("Location: login.php");
@@ -22,12 +24,14 @@
 		$pageNum = min(max($pageNum, 1), $pageCount);
 		$results = getCustomers($company_id, 1, $pagesize, $filter, $db);
 		$db->close();
-		
+
 		foreach ($results as $i => $a) :
 		//Send an SMS to a phone number.		
 			if ($a['use_phone'] == "1"){
+				$_SESSION['sms_count'] = $_SESSION['sms_count'] + 1;
 				$customer_phone = $a['customer_phone'];
-				$sendText = sendtext($company_id, $customer_phone, $message_content);
+				$sendText = sendtext($company_id, $customer_phone, $message_content, $_SESSION['sms_count']);
+
 			}
 				
 		endforeach;			

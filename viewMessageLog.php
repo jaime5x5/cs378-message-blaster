@@ -72,6 +72,7 @@
 		    <th>Message Time</th>
 		    <th>Message Content</th>
 		    <th>Company ID</th>
+		    <th>SMS Deliveries</th>
 		  </tr>
 		<?php
 
@@ -82,6 +83,7 @@
 		    <td data-th="message_time"><?php echo $a['message_time'] ?></td>
 		    <td data-th="message_content"><?php echo $a['message_content'] ?></td>
 		    <td data-th="company_id"><?php echo $a['company_id'] ?></td>
+		    <td data-th="sms_count"><?php echo $a['sms_count'] ?></td>
 		  </tr>
 
 		<?php
