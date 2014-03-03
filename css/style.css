@@ -29,12 +29,21 @@ a {
 	text-decoration: none;
 	margin: 5px;
 }
-#company_name {
+#company_name, #pwd, #message_content {
 	padding: 15px;
 	font-size: 1.3em;
 	background-color: rgba(0, 0, 0, 0.02);
 	border-radius: 3px;
 	margin-bottom: 1.3em;
+}
+
+#message_content { 
+  width: 400px;
+}
+
+#blast {
+  background-color: rgb(112, 177, 114);
+  font-size: 2em;
 }
 
 /*Table*/

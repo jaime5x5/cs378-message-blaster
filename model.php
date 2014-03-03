@@ -60,20 +60,50 @@ function getDatabase()
     	die('Error, Could not connect to database.');
 }
 
-function getPageCount($company_id, $filter, $db)
+function getAllCountMessage($company_id, $db)
 {
-	$query = $db->prepare("SELECT COUNT(customer_id) AS count FROM customers WHERE customer_id = ?" . getFilterQuery($filter));
+
+	$query = $db->prepare("SELECT COUNT(message_id) AS count FROM messages ");
+	
+	if (!$query)
+    	die('Error, Could not query database.');
+
+	$query->execute();	
+	$r = stmt_get_assoc($query);	
+	$count = $r[0]['count'];	
+	$query->close();
+	
+	return $count;	
+}
+
+function getCountMessage($company_id, $db)
+{
+
+	$query = $db->prepare("SELECT COUNT(message_id) AS count FROM messages WHERE company_id = ? ");
+	
+	if (!$query)
+    	die('Error, Could not query database.');
+
+	$query->bind_param("i", $company_id);
+	$query->execute();	
+	$r = stmt_get_assoc($query);	
+	$count = $r[0]['count'];	
+	$query->close();
+	
+	return $count;	
+}
+
+function getPageCountCustomer($company_id, $db)
+{
+	$query = $db->prepare("SELECT COUNT(customer_id) AS count FROM customers WHERE company_id = ?" );
 	
 	if (!$query)
     	die('Error, Could not query database.');
 	
-	$query->bind_param("i", $customer_id);
+	$query->bind_param("i", $company_id);
 	$query->execute();
-	
-	$r = stmt_get_assoc($query);
-	
-	$count = $r[0]["count"];
-	
+	$r = stmt_get_assoc($query);	
+	$count = $r[0]['count'];
 	$query->close();
 	
 	return $count;	
@@ -81,7 +111,7 @@ function getPageCount($company_id, $filter, $db)
 
 function getCustomers($company_id, $pageNum, $pageSize, $filter, $db)
 {
-	$query = $db->prepare("SELECT * FROM customers WHERE company_id = ? ".getFilterQuery($filter)." ORDER BY customer_name LIMIT ?, ?");
+	$query = $db->prepare("SELECT * FROM customers WHERE company_id = ? ".getFilterQuery($filter)." ORDER BY customer_id LIMIT ?, ?");
 	
 	if (!$query)
     	die('Error, Could not query database.');
@@ -105,14 +135,38 @@ function verifyOwnership($company_id, $customer_id, $db)
 	if (!$query)
     	die('Error, Could not query database.');
 
-	$query->bind_param("ii", $mid, $uid);
-	
-	$query->execute();
-	
+	$query->bind_param("ii", $company_id, $customer_id);	
+	$query->execute();	
 	$r = stmt_get_assoc($query);
+	$res = ($r[0]['count'] == 1)?TRUE:FALSE;	
+	$query->close();
 	
-	$res = ($r[0]['count'] == 1)?TRUE:FALSE;
+	return $res;	
+}
+
+function deleteCompany($db, $company_id)
+{
+	$query = $db->prepare("DELETE FROM companies WHERE company_id = ? ");
 	
+	if (!$query)
+    	die('Error, Could not query database.');
+	
+	$query->bind_param("i", $company_id); 
+	$query->execute(); 
+	$query->close();
+}
+
+function verifyOwnershipCompany($company_id, $db)
+{
+	$query = $db->prepare("SELECT COUNT(company_id) AS count FROM companies WHERE  company_id= ? ");	
+	
+	if (!$query)
+    	die('Error, Could not query the database.');
+
+	$query->bind_param("i", $company_id);	
+	$query->execute();	
+	$r = stmt_get_assoc($query);	
+	$res = ($r[0]['count'] == 1)?TRUE:FALSE;	
 	$query->close();
 	
 	return $res;	
@@ -143,7 +197,19 @@ function deleteCustomer($db, $customer_id)
 	if (!$query)
     	die('Error, Could not query database.');
 	
-	$query->bind_param("i", $mid);
+	$query->bind_param("i", $customer_id); 
+	$query->execute(); 
+	$query->close();
+}
+
+function updateCustomer($db, $customer_name, $customer_email, $use_email, $customer_phone, $use_phone, $customer_id){
+
+	$query = $db->prepare("UPDATE customers SET customer_name=?, customer_email=?, use_email=?, customer_phone=?, use_phone= ? WHERE customer_id=?");
+
+	if (!$query)
+		die('Error, Could not update database.');
+	
+	$query->bind_param("ssisii",  $customer_name, $customer_email, $use_email, $customer_phone, $use_phone, $customer_id);
 	
 	$query->execute();
 	$query->close();
@@ -183,19 +249,38 @@ function getAllMessages($company_id, $pageNum, $pageSize, $filter, $db)
 	return stmt_get_assoc($query);
 }
 
-function sendtext($company_id, $customer_phone, $message_content, $sms_count){
-			if($message_content && $customer_phone && $sms_count) {
+function sendtext($company_id, $message_content, $rx_by, $medium){
+			if($company_id && $message_content && $rx_by && $medium) {
 				$gv = new GoogleVoice(__gv__email, __gv__pwd);
-				$gv->sendSMS($customer_phone, $message_content);
+				$gv->sendSMS($medium, $message_content);
 				// log event
 				$db = getDatabase();		
-				$query = $db->prepare("INSERT INTO messages SET message_content=?, message_time=?, company_id=?, sms_count=? ");
+				$query = $db->prepare("INSERT INTO messages SET  message_time=?, message_content=?, company_id=?, rx_by=?, medium=? ");
 
 				if (!$query)
 	    			die('Error, Could not update database.');
 	    		$timestamp = NULL;
 			
-				$query->bind_param("sssi", $message_content, $timestamp, $company_id, $sms_count);				
+				$query->bind_param("ssiss", $timestamp, $message_content, $company_id, $rx_by, $medium);				
+				$query->execute();				
+				$db->close();
+		}
+}
+
+function sendMail($company_id, $message_content, $rx_by, $medium){
+			if($company_id && $message_content && $rx_by && $medium) {
+				// In case any of our lines are larger than 70 characters, we should use wordwrap()
+				$message_content = wordwrap($message_content, 70, "\r\n");
+				// Send
+				mail($customer_email, 'Great News', $message_content);
+				// log event
+				$db = getDatabase();		
+				$query = $db->prepare("INSERT INTO messages SET  message_time=?, message_content=?, company_id=?, rx_by=?, medium=? ");
+
+				if (!$query)
+	    			die('Error, Could not update database.');
+	    		$timestamp = NULL;			
+				$query->bind_param("ssiss", $timestamp, $message_content, $company_id, $rx_by, $medium);				
 				$query->execute();				
 				$db->close();
 		}
@@ -205,38 +290,8 @@ function test_input($data) {
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
+
     return $data;
 }
-
-// function getSub($mid, $sub,  $db)
-// {
-// 	$query = $db->prepare("SELECT * FROM $sub WHERE mid = ?");
-	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
-	
-// 	$query->bind_param("i", $mid);
-	
-// 	$query->execute();
-	
-// 	return stmt_get_assoc($query);
-// }
-
-// function getSingleSub($mid, $sub, $idName, $id, $db)
-// {
-// 	$query = $db->prepare("SELECT * FROM $sub WHERE mid = ? AND $idName = ?");
-	
-// 	if (!$query)
-//     	die('Error, Could not query database.');
-	
-// 	$query->bind_param("ii", $mid, $id);
-	
-// 	$query->execute();
-	
-// 	$res = stmt_get_assoc($query);
-	
-// 	return $res[0];
-// }
-
 
 ?>

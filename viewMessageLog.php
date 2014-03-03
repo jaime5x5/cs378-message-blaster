@@ -6,12 +6,12 @@
 		header("Location: login.php");
 		die();
 	}
-	require_once 'model.php';
+	require('model.php');
 
 	$company_name = $_SESSION['company_name'];
 	$company_id = $_SESSION['company_id'];
 
-	const PAGESIZE = 10; //just hard code :)
+	const PAGESIZE = 7; //just hard code :)
 	if ($company_name == 'brian' || $company_name == 'stephen' ||  $company_name == 'jaime'){
 		$is_admin = $_SESSION['company_name'];
 	}
@@ -29,18 +29,23 @@
 
 	$db = getDatabase();
 
-	$customerCount = 1;
-
-	$pageCount = intval(ceil($customerCount / PAGESIZE));
-
-	$pageNum = min(max($pageNum, 1), $pageCount);
 	if ($is_admin){
-		$results = getAllMessages($company_id, 1, PAGESIZE, $filter, $db);
+		$messageCount = getAllCountMessage($company_id, $db);
 	}
 	else {
-		$results = getMessages($company_id, 1, PAGESIZE, $filter, $db);
+		$messageCount = getCountMessage($company_id, $db);
 	}
-		
+
+	$pageCount = intval(ceil($messageCount / PAGESIZE));
+
+	$pageNum = min(max($pageNum, 1), $pageCount);
+
+	if ($is_admin){
+		$results = getAllMessages($company_id, $pageNum, PAGESIZE, $filter, $db);
+	}
+	else {
+		$results = getMessages($company_id, $pageNum, PAGESIZE, $filter, $db);
+	}
 
 	$db->close();
 
@@ -59,7 +64,7 @@
 		<a href=logout.php?ref="<?php echo $urle ?>">Logout</a>
 		<br /><br />
 		<?php
-			if($customerCount > 0):
+			if($messageCount > 0):
 		?>
 		<h6>View message list by:</h6>
 			<a href="<?php echo "viewMessageLog.php?filter=message_time" ?>">Time</a>&nbsp;&nbsp;
@@ -72,25 +77,41 @@
 		    <th>Message Time</th>
 		    <th>Message Content</th>
 		    <th>Company ID</th>
-		    <th>SMS Deliveries</th>
+		    <th>Received by</th>
+		    <th>Via</th>
 		  </tr>
 		<?php
 
 			foreach ($results as $i => $a) :
 
 		?>
-		  <tr>
-		    <td data-th="message_time"><?php echo $a['message_time'] ?></td>
-		    <td data-th="message_content"><?php echo $a['message_content'] ?></td>
-		    <td data-th="company_id"><?php echo $a['company_id'] ?></td>
-		    <td data-th="sms_count"><?php echo $a['sms_count'] ?></td>
-		  </tr>
+			  <tr>
+			    <td data-th="<?php echo $a['message_time'] ?>"><?php echo $a['message_time'] ?></td>
+			    <td data-th="<?php echo $a['message_content'] ?>"><?php echo $a['message_content'] ?></td>
+			    <td data-th="<?php echo $a['company_id'] ?>"><?php echo $a['company_id'] ?></td>
+			    <td data-th="<?php echo $a['rx_by'] ?>"><?php echo $a['rx_by'] ?></td>
+			    <td data-th="<?php echo $a['medium'] ?>"><?php echo $a['medium'] ?></td>
+			  </tr>
 
 		<?php
 			endforeach;
 		?>
 		</table>
+		<p>page <?php echo $pageNum ?> of <?php echo $pageCount ?></p>
+		<?php	
+				if($pageCount >= 1):
+				?>
+				<a href="<?php echo "viewMessageLog.php?filter=$filter&page=1" ?>">First</a>&nbsp;&nbsp;<a href="<?php echo "viewMessageLog.php?filter=$filter&page=".($pageNum-1) ?>">Prev</a>&nbsp;&nbsp;
+				<?php
+				for ($i=1; $i <= $pageCount ; $i++) { 
+					echo "<a href=\"viewMessageLog.php?filter=$filter&page=$i\">$i</a>&nbsp;&nbsp;";
+				}
+				?>
+				<a href="<?php echo "viewMessageLog.php?filter=$filter&page=".($pageNum+1) ?>">Next</a>&nbsp;&nbsp;<a href="<?php echo "viewMessageLog.php?filter=$filter&page=$pageCount" ?>">Last</a>&nbsp;&nbsp;
+				<?php
+				endif;
+			else:
+		?>
 		<?php endif ?>
-
 	</body>
 </html>

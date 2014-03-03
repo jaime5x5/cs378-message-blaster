@@ -23,14 +23,14 @@
 			$db->close();
 			
 		}	
-	header("Location: ". (isset($_GET['ref']) ? urldecode($_GET['ref']) : "landing.php"));
-	die("done");
+		header("Location: ". (isset($_GET['ref']) ? urldecode($_GET['ref']) : "landing.php"));
+		die("done");
 	}
 ?>
 <html>
 	<head>	
 		<title>Add Company</title>
-
+		<script src="js/valid.js" type="text/javascript"></script>
 		<link rel="stylesheet" type="text/css" href="css/style.css">		
 	</head>
 	<body>

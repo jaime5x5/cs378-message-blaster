@@ -36,15 +36,14 @@ if (isset($_POST['submit'])){
 		<link rel="stylesheet" type="text/css" href="css/style.css">		
 	</head>
 	<body>
-		<div name="memberdiv" style="position: absolute; top: 30; left: 30; width: 600; height: 800; border-width: 4;">
+		<h1>Welcome to Message Blaster</h1>
+		<p>Please enter your company name:</p><br/>
+		<div name="memberdiv">
 			<form action = "login.php" method="post">
-			<fieldset><legend>Message Blaster:</legend>
-				<label>Please enter your company name:</label><br/>
-					<input type="text" width="400" name="company_name" id="company_name"  value="" ><br/>
-					<label>Password:</label><br/>
-					<input type="password" width="400" name="pwd" id="pwd"  value="" ><br/><br/>
-					<input type="submit" name = "submit" value="Login" style="width: 155;">		
-			</fieldset>
+				<input type="text" width="400" name="company_name" id="company_name"  value="" ><br/>
+				<label>Password:</label><br/>
+				<input type="password" width="400" name="pwd" id="pwd"  value="" ><br/><br/>
+				<input type="submit" name = "submit" value="Login" style="width: 155;">		
 			</form>
 		</div>
 	</body>

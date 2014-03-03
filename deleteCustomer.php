@@ -3,6 +3,7 @@
 
 	$company_name = $_SESSION['company_name'];
 	$company_id = $_SESSION['company_id'];
+	var_dump($_GET);
 ?>
 <html>
 	<head>
