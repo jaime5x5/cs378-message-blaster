@@ -34,7 +34,7 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css">		
 	</head>
 	<body>
-		<a href=logout.php?ref="<?php echo $urle ?>">Logout</a>
+		<a href="logout.php">Logout</a>
 		<h1>Add Company</h1><br />
 		<hr>
 		<div name="memberdiv">
@@ -50,7 +50,7 @@
 				<div>
 			        <input type="submit" value="Add" />
 			    </div>
-			    <a href=landing.php?ref="<?php echo $urle ?>">Cancel</a>
+			    <a href="landing.php">Cancel</a>
 			</form>
 		</div>
 	</body>

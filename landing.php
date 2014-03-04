@@ -1,6 +1,5 @@
 <?php
 	session_start();
-
 	if(!isset($_SESSION['company_id']))
 	{
 		header("Location: login.php");
@@ -60,7 +59,7 @@
 			<h6>View customer list by:</h6>
 			<a href="<?php echo "landing.php?filter=e" ?>">Customers email</a>&nbsp;&nbsp;
 			<a href="<?php echo "landing.php?filter=t" ?>">Customers text</a>&nbsp;&nbsp;
-			<a href="<?php echo "landing.php?filter=a" ?>">View Both</a>&nbsp;&nbsp;
+			<a href="<?php echo "landing.php?filter=a" ?>">View All</a>&nbsp;&nbsp;
 			
 		</form>
 		<form action="editCustomer.php" method="post">
@@ -71,6 +70,7 @@
 			     	<th><label for="use_email">Use Email</label></th>
 			     	<th><label for="customer_phone">Phone</label></th>
 			     	<th><label for="use_phone">Use Phone:</label></th>
+			     	<th>customer id</th>
 			     	<th>Modify</th>			        
 			     </tr>
 		<?php
@@ -96,8 +96,8 @@
 			     	<td data-th=""><input type="checkbox" name="use_email" id="use_email"  value="" <?php echo $email_checked; ?> /></td>
 			     	<td data-th="<?php echo $a['customer_phone']; ?>"><input type="text" name="customer_phone" id="customer_phone" placeholder="5098675309"  value="<?php echo $a['customer_phone']; ?>" readonly/></td>
 			     	<td data-th=""><input type="checkbox" name="use_phone" id="use_phone"  value=""  <?php echo $phone_checked; ?> /></td>
-			     	<td data-th="<?php echo $customer_id; ?>"><input type="hidden" name="customer_id" id="customer_id" value="<?php echo $customer_id; ?>" />
-			        <input type="submit" name="edit_customers" id="edit_customers" value="Edit/Delete" /></td>		        
+			     	<td data-th="<?php echo $customer_id; ?>"><input type="text" name="customer_id" id="customer_id" value="<?php echo $customer_id; ?>" /></td>
+			        <td data-th=""><a href="<?php echo "editCustomer.php?customer_id=".$a['customer_id']."&ref=$urle" ?>">View / Edit</a>&nbsp;&nbsp;</td>		        
 			     </tr>
    
 			    <div>

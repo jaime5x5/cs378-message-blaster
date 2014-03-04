@@ -1,59 +1,86 @@
 <?php
 	session_start();
+	// var_dump($_POST);
+	// var_dump($_GET);
 	require('model.php');
+
+	$company_name = $_SESSION['company_name'];
+	$company_id = $_SESSION['company_id'];
+
+	$urle = urlencode("landing.php");
+
 	if(!isset($_SESSION['company_id'])){
 		header("Location: login.php");
 		die();
 	}
 
-	$company_name = $_SESSION['company_name'];
-	$company_id = $_SESSION['company_id'];
-	//sanitize
-	$customer_name = test_input($_POST['customer_name']);
-	$customer_email = test_input($_POST['customer_email']);
-	$customer_phone = test_input($_POST['customer_phone']);
-	$customer_id = test_input($_POST['customer_id']);
-	// translate for display
-	if(isset($_POST['use_email']))
-		$use_email = "checked";
-	if(isset($_POST['use_phone']))
-		$use_phone = "checked";			
+	if (isset($_GET['customer_id']) && !isset($_POST['customer_name'])){
+		$customer_id = $_GET['customer_id'];
+		$db = getDatabase();
+		$results = getCustomer($customer_id, $db);		
+		$db->close();
+		$customer_name = $results['customer_name'];
+		$customer_email = $results['customer_email'];
+		$use_email = $results['use_email'];
+		$customer_phone = $results['customer_phone'];
+		$use_phone = $results['use_phone'];
 
-	if (isset($_POST['edit'])){
-		// translate for db
-		if(isset($_POST['use_phone']))
-			$use_phone = "1";
-		else 
-			$use_phone = "0";
-		if(isset($_POST['use_email']))
-			$use_email = "1";
-		else 
-			$use_email = "0";
-
+		// translate for display
+		if($use_email == 1)
+			$use_email = "checked";
+		if($use_phone == 1)
+			$use_phone = "checked";			
+	} 
+	else
+	{
+			//sanitize
+		var_dump($_POST);
+		$customer_name = test_input($_POST['customer_name']);
+		$customer_email = test_input($_POST['customer_email']);
+		$customer_phone = test_input($_POST['customer_phone']);
 		$customer_id = test_input($_POST['customer_id']);
+		// translate for display
+		if(isset($_POST['use_email']))
+			$use_email = "checked";
+		if(isset($_POST['use_phone']))
+			$use_phone = "checked";			
 
-		$db = getDatabase();
+		if (isset($_POST['edit'])){
+			// translate for db
+			if(isset($_POST['use_phone']))
+				$use_phone = "1";
+			else 
+				$use_phone = "0";
+			if(isset($_POST['use_email']))
+				$use_email = "1";
+			else 
+				$use_email = "0";
 
-		$isOwner = verifyOwnership($company_id, $customer_id, $db);
+			$customer_id = test_input($_POST['customer_id']);
 
-		if (!$isOwner)
-    		die('Error, Insufficent priviledge.');
-		else
-			updateCustomer($db, $customer_name, $customer_email, $use_email, $customer_phone, $use_phone, $customer_id);
-		
-		$db->close();
-		header("Location:landing.php");
-	}
-	else if (isset($_POST['delete'])) { 
-		$db = getDatabase();
+			$db = getDatabase();
 
-		$isOwner = verifyOwnership($company_id, $customer_id, $db);
-		if (!$isOwner)
-    		die('Error, Insufficent priviledge.');
-		else
-			deleteCustomer($db, $customer_id);
-		$db->close();
-		header("Location:landing.php");
+			$isOwner = verifyOwnership($company_id, $customer_id, $db);
+
+			if (!$isOwner)
+	    		die('Error, Insufficent priviledge.');
+			else
+				updateCustomer($db, $customer_name, $customer_email, $use_email, $customer_phone, $use_phone, $customer_id);
+			
+			$db->close();
+			header("Location:landing.php");
+		}
+		else if (isset($_POST['delete'])) { 
+			$db = getDatabase();
+
+			$isOwner = verifyOwnership($company_id, $customer_id, $db);
+			if (!$isOwner)
+	    		die('Error, Insufficent priviledge.');
+			else
+				deleteCustomer($db, $customer_id);
+			$db->close();
+			header("Location:landing.php");
+		}
 	}
 
 ?>
@@ -66,7 +93,7 @@
 	<body>
 		<h1>Edit/Delete Customer</h1><br />
 		<hr>
-		<a href=logout.php?ref="<?php echo $urle ?>">Logout</a>
+		<a href="logout.php">Logout</a>
 		<form action="editCustomer.php" method="post" onsubmit="return confirm('Confirm action?')">
 			<fieldset>
 			    <legend>Edit/Delete Customer</legend>
@@ -95,7 +122,7 @@
 			        <input type="submit" name="delete" id="delete" value="Delete" />
 			        						        
 			    </div>
-				<a href=landing.php?ref="<?php echo $urle ?>">Cancel</a>
+				<a href=landing.php>Cancel</a>
 			    
 			</fieldset>
 		</form>

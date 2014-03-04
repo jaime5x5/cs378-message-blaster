@@ -1,7 +1,7 @@
 <?php
 
 require_once 'locked/security.php';
-include('GoogleVoice.php');
+require('TextMarksV2APIClient.php');
 
 //reworked from comments in http://www.php.net/manual/en/mysqli-stmt.fetch.php
 //I'm using this to replace the get_results method.
@@ -250,29 +250,50 @@ function getAllMessages($company_id, $pageNum, $pageSize, $filter, $db)
 }
 
 function sendtext($company_id, $message_content, $rx_by, $medium){
+
 			if($company_id && $message_content && $rx_by && $medium) {
-				$gv = new GoogleVoice(__gv__email, __gv__pwd);
-				$gv->sendSMS($medium, $message_content);
-				// log event
+				// $gv = new GoogleVoice(__gv__email, __gv__pwd);
+				// $gv->sendSMS($medium, $message_content);
+				try
+				{
+					// Broadcast a message to a TextMark group:
+					$sMyApiKey        = 'dev4dollars_com__1a1f9376';
+					$sMyTextMarksUser = 'jaime5x5'; // (or my TextMarks phone#)
+					$sMyTextMarksPass = 'txrx5x5';
+					$sKeyword         = 'JDWCS378';
+					$sMessage         = $message_content;
+					$tmapi = new TextMarksV2APIClient($sMyApiKey, $sMyTextMarksUser, $sMyTextMarksPass);
+					$resp = $tmapi->call('GroupLeader', 'broadcast_message', array(
+						'tm' => $sKeyword,
+						'msg' => $sMessage
+						));
+				}
+				catch (Exception $e)
+				{
+					echo "Whoops... Exception caught!\n";
+					echo "Error code: " . $e->getCode() . "\n";
+					echo "Exception: " . $e . "\n";
+				}
+				
 				$db = getDatabase();		
 				$query = $db->prepare("INSERT INTO messages SET  message_time=?, message_content=?, company_id=?, rx_by=?, medium=? ");
 
 				if (!$query)
 	    			die('Error, Could not update database.');
-	    		$timestamp = NULL;
-			
+	    		$timestamp = NULL;			
 				$query->bind_param("ssiss", $timestamp, $message_content, $company_id, $rx_by, $medium);				
 				$query->execute();				
 				$db->close();
 		}
 }
 
+
 function sendMail($company_id, $message_content, $rx_by, $medium){
 			if($company_id && $message_content && $rx_by && $medium) {
 				// In case any of our lines are larger than 70 characters, we should use wordwrap()
 				$message_content = wordwrap($message_content, 70, "\r\n");
 				// Send
-				mail($customer_email, 'Great News', $message_content);
+				// mail($medium, 'Great News', $message_content);
 				// log event
 				$db = getDatabase();		
 				$query = $db->prepare("INSERT INTO messages SET  message_time=?, message_content=?, company_id=?, rx_by=?, medium=? ");

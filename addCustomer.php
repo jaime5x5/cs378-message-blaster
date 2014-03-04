@@ -52,7 +52,7 @@
 	<body>
 		<h1>Add Customer</h1><br />
 		<hr>
-		<a href=logout.php?ref="<?php echo $urle ?>">Logout</a>
+		<a href="logout.php">Logout</a>
 		<form action="#" method="post">
 			<fieldset>
 			    <legend>Add New Customer</legend>
@@ -80,7 +80,7 @@
 			        <input type="submit" value="Add" />
 							        
 			    </div>
-				<a href=landing.php?ref="<?php echo $urle ?>">Cancel</a>
+				<a href="landing.php">Cancel</a>
 			    
 			</fieldset>
 		</form>

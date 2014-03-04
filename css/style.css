@@ -41,6 +41,11 @@ a {
   width: 400px;
 }
 
+#delcomp {
+  background-color: #CA6565;
+  font-size: 1.3em;
+}
+
 #blast {
   background-color: rgb(112, 177, 114);
   font-size: 2em;
